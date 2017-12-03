@@ -1,0 +1,17 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Baking App</string>
+    <string name="networkstate">check your connection .</string>
+    <string name="recipe_list_servings_text">Servings: <xliff:g id="count">%d</xliff:g></string>
+    <!-- Recipe Details -->
+    <string name="recipe_details_ingredients_header"><b>Ingredients list:</b></string>
+    <string name="recipe_details_ingredient_line" translatable="false" />
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <!-- Widget -->
+    <string name="widget_config_no_data">Recipe data is not available, please sync the data and try again.</string>
+    <string name="widget_config_text">Please choose a recipe from the list below:</string>
+    <string name="widget_ok_button">OK</string>
+    <string name="configure">Configure</string>
+</resources>
