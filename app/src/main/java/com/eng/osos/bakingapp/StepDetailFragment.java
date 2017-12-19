@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.eng.osos.bakingapp.models.Step;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -58,7 +59,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
     ArrayList<Step> stepArrayList;
-    private int position;
+    private long position;
     private int endOfArrayList;
     private int orientation;
 
@@ -79,13 +80,16 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_step_detail, container, false);
-        ButterKnife.bind(this, view);
-        Bundle bundle = getArguments();
-        position = bundle.getInt("position");
-        stepArrayList = bundle.getParcelableArrayList("steps");
-        endOfArrayList = stepArrayList.size() - 1;
+            // Inflate the layout for this fragment
+            View view = inflater.inflate(R.layout.fragment_step_detail, container, false);
+            ButterKnife.bind(this, view);
+            Bundle bundle = getArguments();
+        position = C.TIME_UNSET;
+
+            position = bundle.getInt("position");
+            stepArrayList = bundle.getParcelableArrayList("steps");
+            endOfArrayList = stepArrayList.size() - 1;
+
         if (position == 0) {
             setViewVisibility(btn_previous, false);
         }
@@ -136,8 +140,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
 
     private void setExoPlayer() {
-        descTextView.setText(stepArrayList.get(position).getDescription());
-        String imageUrl = stepArrayList.get(position).getThumbnailURL();
+        descTextView.setText(stepArrayList.get((int) position).getDescription());
+        String imageUrl = stepArrayList.get((int) position).getThumbnailURL();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Picasso.with(getContext())
                     .load(imageUrl)
@@ -147,7 +151,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             // Hide image view
             setViewVisibility(stepThumbnail, false);
         }
-        String video = stepArrayList.get(position).getVideoURL();
+        String video = stepArrayList.get((int) position).getVideoURL();
         if (video != null && !video.isEmpty()) {
             // Init and show video view
             setViewVisibility(exoPlayerView, true);
@@ -163,6 +167,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             view.setVisibility(View.GONE);
         }
     }
+
+
 
     @Override
     public void onStop() {
@@ -185,6 +191,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     // EXO PLAYER METHODS
     private void releasePlayer() {
         if (exoPlayer != null) {
+            position= (int) exoPlayer.getCurrentPosition();
+
             exoPlayer.stop();
             exoPlayer.release();
             exoPlayer = null;
@@ -241,6 +249,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             String userAgent = Util.getUserAgent(getContext(), "StepVideo");
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
+            if (position != C.TIME_UNSET) exoPlayer.seekTo(position);
             exoPlayer.prepare(mediaSource);
             exoPlayer.setPlayWhenReady(true);
         }
