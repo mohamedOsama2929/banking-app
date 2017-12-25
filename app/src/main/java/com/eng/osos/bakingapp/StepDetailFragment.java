@@ -59,9 +59,11 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
     ArrayList<Step> stepArrayList;
-    private long position;
+    private int position;
+    private long exoPosition;
     private int endOfArrayList;
     private int orientation;
+    String SELECTED_POSITION="exoPosition";
 
     public static StepDetailFragment getInstance(ArrayList<Step> stepArrayList, int position) {
         StepDetailFragment detailFragment = new StepDetailFragment();
@@ -84,12 +86,19 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             View view = inflater.inflate(R.layout.fragment_step_detail, container, false);
             ButterKnife.bind(this, view);
             Bundle bundle = getArguments();
-        position = C.TIME_UNSET;
 
+           exoPosition=  C.TIME_UNSET;
+
+        if (savedInstanceState != null) {
+            //...your code...
+
+            exoPosition = savedInstanceState.getLong(SELECTED_POSITION, C.TIME_UNSET);
+
+
+        }
             position = bundle.getInt("position");
-            stepArrayList = bundle.getParcelableArrayList("steps");
-            endOfArrayList = stepArrayList.size() - 1;
-
+        stepArrayList = bundle.getParcelableArrayList("steps");
+        endOfArrayList = stepArrayList.size() - 1;
         if (position == 0) {
             setViewVisibility(btn_previous, false);
         }
@@ -123,6 +132,16 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         return view;
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle currentState) {
+        super.onSaveInstanceState(currentState);
+
+        currentState.putLong(SELECTED_POSITION, exoPosition);
+    }
+
+
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -140,8 +159,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
 
     private void setExoPlayer() {
-        descTextView.setText(stepArrayList.get((int) position).getDescription());
-        String imageUrl = stepArrayList.get((int) position).getThumbnailURL();
+        descTextView.setText(stepArrayList.get( position).getDescription());
+        String imageUrl = stepArrayList.get( position).getThumbnailURL();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Picasso.with(getContext())
                     .load(imageUrl)
@@ -151,7 +170,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             // Hide image view
             setViewVisibility(stepThumbnail, false);
         }
-        String video = stepArrayList.get((int) position).getVideoURL();
+        String video = stepArrayList.get(position).getVideoURL();
         if (video != null && !video.isEmpty()) {
             // Init and show video view
             setViewVisibility(exoPlayerView, true);
@@ -191,7 +210,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     // EXO PLAYER METHODS
     private void releasePlayer() {
         if (exoPlayer != null) {
-            position= (int) exoPlayer.getCurrentPosition();
+            exoPosition=  exoPlayer.getCurrentPosition();
 
             exoPlayer.stop();
             exoPlayer.release();
@@ -229,6 +248,11 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             @Override
             public void onPause() {
                 exoPlayer.setPlayWhenReady(false);
+                /*
+                position = exoPlayer.getCurrentPosition();
+                Bundle p = new Bundle();
+                p.putLong(SELECTED_POSITION,position);
+                */
             }
 
             @Override
@@ -249,7 +273,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             String userAgent = Util.getUserAgent(getContext(), "StepVideo");
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
-            if (position != C.TIME_UNSET) exoPlayer.seekTo(position);
+            if (exoPosition != C.TIME_UNSET) exoPlayer.seekTo(exoPosition);
             exoPlayer.prepare(mediaSource);
             exoPlayer.setPlayWhenReady(true);
         }

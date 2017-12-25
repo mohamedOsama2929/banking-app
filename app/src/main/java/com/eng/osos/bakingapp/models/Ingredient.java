@@ -3,10 +3,6 @@ package com.eng.osos.bakingapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by ibrahimAbdelKarim on 13/07/2017.
- */
-
 public class Ingredient implements Parcelable{
     private double quantity;
 

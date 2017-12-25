@@ -44,7 +44,8 @@ public class MainActivityScreenTest {
     }
 
     @Test
-    public void onClickingRecipeCard_OpenRecipeDetails() {
+    public void onClickingRecipeCard_OpenRecipeDetails() throws InterruptedException {
+        Thread.sleep(2000);
         onView(withId(R.id.rv_main))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         intended(hasComponent(IgredientStepActivity.class.getName()));
